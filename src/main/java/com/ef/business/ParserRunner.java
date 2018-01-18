@@ -4,6 +4,7 @@ import com.ef.enums.Search;
 import com.ef.exception.InvalidFileException;
 import com.ef.exception.InvalidParameterException;
 import com.ef.model.AccessLog;
+import com.ef.model.BlockedIp;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +20,7 @@ import java.nio.file.NoSuchFileException;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.StringTokenizer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -26,8 +28,12 @@ import java.util.stream.Stream;
 @Component
 public class ParserRunner {
 
-    private Logger log = LoggerFactory.getLogger(this.getClass());
+    private static final String SPLIT_DELIMITER = "|";
+    private static final String DATE_TIME_LOG_PATTERN = "yyyy-MM-dd HH:mm:ss.SSS";
+    private static final String DATE_TIME_LOG_PATTERN2 = "yyyy-MM-dd.HH:mm:ss";
+    private static final String BLOCK_MESSAGE = "BLOCKED - This IP made more than %s or more requests ";
 
+    private Logger log = LoggerFactory.getLogger(this.getClass());
     @Value("${accesslog:}")
     private String accesslogParameter;
     @Value("${startDate:}")
@@ -48,7 +54,15 @@ public class ParserRunner {
     public void run() {
         this.validateInputParameters();
         this.readFile();
-        this.search.executeSearch(LocalDateTime.parse(startDateParameter), Integer.valueOf(thresholdParameter));
+        Integer threshold = Integer.valueOf(thresholdParameter);
+        this.parseReturnedIps(this.search.executeSearch(LocalDateTime.parse(startDateParameter, DateTimeFormatter.ofPattern(DATE_TIME_LOG_PATTERN2)), threshold), threshold);
+    }
+
+    private void parseReturnedIps(List<String> ipsList, Integer threshold) {
+        ipsList.forEach(ip -> {
+            log.info(ip);
+            blockedIpBusiness.save(new BlockedIp().setIp(ip).setComment(String.format(BLOCK_MESSAGE, threshold)));
+        });
     }
 
     private void validateInputParameters() {
@@ -88,10 +102,10 @@ public class ParserRunner {
     }
 
     private void parseLine(String line) {
-        StringTokenizer st = new StringTokenizer(line, "|");
+        StringTokenizer st = new StringTokenizer(line, SPLIT_DELIMITER);
         while (st.hasMoreTokens()) {
             this.accessLogBusiness.save(new AccessLog()
-                    .setDate(LocalDateTime.parse(st.nextToken(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS")))
+                    .setDate(LocalDateTime.parse(st.nextToken(), DateTimeFormatter.ofPattern(DATE_TIME_LOG_PATTERN)))
                     .setIp(st.nextToken())
                     .setRequestMethod(st.nextToken())
                     .setHttpResponseStatus(st.nextToken())

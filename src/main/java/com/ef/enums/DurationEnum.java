@@ -7,36 +7,34 @@ import java.util.Map;
 
 public enum DurationEnum {
 
-    DAILY("daily", 200, DailySearch.class), HOURLY("hourly", 500, HourlySearch.class);
+    DAILY("daily", 200), HOURLY("hourly", 500);
 
-    private static final String START_DATE = "startDate";
-    private static final String END_DATE = "endDate";
+    public static final String START_DATE = "startDate";
+    public static final String END_DATE = "endDate";
 
     private String description;
     private Integer maxRequestLimit;
-    private Class implementation;
 
-    DurationEnum(String description, Integer maxRequestLimit, Class implementation) {
+    DurationEnum(String description, Integer maxRequestLimit) {
         this.description = description;
         this.maxRequestLimit = maxRequestLimit;
-        this.implementation = implementation;
     }
 
     public Map<String, LocalDateTime> getDateRange(LocalDateTime date) {
         switch (this) {
             case HOURLY:
-                return getBuild(date);
+                return buildRange(date, date.plusHours(1));
             case DAILY:
-                return getBuild(date);
+                return buildRange(date, date.plusDays(1));
             default:
                 throw new AssertionError("Unknown duration " + this);
         }
     }
 
-    private ImmutableMap<String, LocalDateTime> getBuild(LocalDateTime date) {
+    private ImmutableMap<String, LocalDateTime> buildRange(LocalDateTime start, LocalDateTime end) {
         return ImmutableMap.<String, LocalDateTime>builder()
-                .put(START_DATE, LocalDateTime.now())
-                .put(END_DATE, LocalDateTime.now())
+                .put(START_DATE, start)
+                .put(END_DATE, end)
                 .build();
     }
 
