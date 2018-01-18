@@ -26,7 +26,7 @@ public class FileBusiness {
     private static final String SPLIT_DELIMITER = "|";
     private static final String DATE_TIME_LOG_FILE_PATTERN = "yyyy-MM-dd HH:mm:ss.SSS";
 
-    private Logger log = LoggerFactory.getLogger(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private ApplicationBusiness applicationBusiness;

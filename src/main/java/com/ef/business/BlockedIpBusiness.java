@@ -13,12 +13,12 @@ import java.util.List;
 public class BlockedIpBusiness {
 
     private static final String BLOCKED_IP_MESSAGE = "%s made more than %s requests";
-    private Logger log = LoggerFactory.getLogger(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private BlockedIpRepository blockedIpRepository;
 
-    public void save(BlockedIp blockedIp) {
+    private void save(BlockedIp blockedIp) {
         this.blockedIpRepository.save(blockedIp);
     }
 
