@@ -35,7 +35,7 @@ public class FileBusiness {
     private BlockedIpBusiness blockedIpBusiness;
 
 
-    public void readAndProcessFile(String accessLog, String duration, String startDate, Integer threshold) {
+    public void readAndProcessFile(String accessLog) {
         if (StringUtils.isNotBlank(accessLog)) {
             try (Stream<String> stream = Files.lines(Paths.get(accessLog))) {
                 this.process(stream);
