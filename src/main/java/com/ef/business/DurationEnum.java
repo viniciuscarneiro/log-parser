@@ -28,10 +28,4 @@ public enum DurationEnum {
         return duration;
     }
 
-    public static void main(String[] args) {
-        LocalDateTime now = LocalDateTime.now();
-        System.out.println(now);
-        System.out.println(now.plus(DurationEnum.HOURLY.getDuration()));
-        System.out.println(now.plus(DurationEnum.DAILY.getDuration()));
-    }
 }

@@ -38,7 +38,6 @@ public class FileBusiness {
     @Value("${accesslog:}")
     private String accessLog;
 
-
     public void readAndProcessFile() {
         if (StringUtils.isNotBlank(accessLog)) {
             try (Stream<String> stream = Files.lines(Paths.get(accessLog))) {
@@ -52,7 +51,6 @@ public class FileBusiness {
             }
         }
     }
-
 
     private void parseLine(String line) {
         StringTokenizer st = new StringTokenizer(line, SPLIT_DELIMITER);

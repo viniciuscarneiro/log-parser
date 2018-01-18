@@ -12,7 +12,7 @@ import java.util.Optional;
 public interface AccessLogRepository extends JpaRepository<AccessLog, Long> {
 
     @Query(nativeQuery = true, value = "SELECT ip FROM (SELECT ip, COUNT(1) AS COUNT FROM access_log WHERE date BETWEEN :startDate AND :endDate GROUP BY ip HAVING COUNT > :threshold) log")
-    Optional<List<String>> findByDateRangeAndCount(@Param("startDate") LocalDateTime dateTime, @Param("endDate") LocalDateTime localDateTime, @Param("threshold") Integer threshold);
+    Optional<List<String>> findByDateRangeAndCount(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate, @Param("threshold") Integer threshold);
 
     List<AccessLog> findByIp(String ip);
 }
