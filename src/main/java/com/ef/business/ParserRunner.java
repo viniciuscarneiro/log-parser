@@ -30,8 +30,8 @@ public class ParserRunner {
 
     private static final String SPLIT_DELIMITER = "|";
     private static final String DATE_TIME_LOG_PATTERN = "yyyy-MM-dd HH:mm:ss.SSS";
-    private static final String DATE_TIME_LOG_PATTERN2 = "yyyy-MM-dd.HH:mm:ss";
-    private static final String BLOCK_MESSAGE = "BLOCKED - This IP made more than %s or more requests ";
+    private static final String DATE_TIME_PARAMETER_PATTERN = "yyyy-MM-dd.HH:mm:ss";
+    private static final String BLOCK_MESSAGE = "BLOCKED - This IP made more than %s or more requests";
 
     private Logger log = LoggerFactory.getLogger(this.getClass());
     @Value("${accesslog:}")
@@ -41,7 +41,7 @@ public class ParserRunner {
     @Value("${duration:}")
     private String durationParameter;
     @Value("${threshold:}")
-    private String thresholdParameter;
+    private Integer thresholdParameter;
 
     @Autowired
     private AccessLogBusiness accessLogBusiness;
@@ -53,29 +53,28 @@ public class ParserRunner {
 
     public void run() {
         this.validateInputParameters();
-        this.readFile();
-        Integer threshold = Integer.valueOf(thresholdParameter);
-        this.parseReturnedIps(this.search.executeSearch(LocalDateTime.parse(startDateParameter, DateTimeFormatter.ofPattern(DATE_TIME_LOG_PATTERN2)), threshold), threshold);
+        this.readAndProcessFile();
+        this.parseReturnedIps(this.search.executeSearch(LocalDateTime.parse(startDateParameter, DateTimeFormatter.ofPattern(DATE_TIME_PARAMETER_PATTERN)), thresholdParameter));
     }
 
-    private void parseReturnedIps(List<String> ipsList, Integer threshold) {
+    private void parseReturnedIps(List<String> ipsList) {
         ipsList.forEach(ip -> {
             log.info(ip);
-            blockedIpBusiness.save(new BlockedIp().setIp(ip).setComment(String.format(BLOCK_MESSAGE, threshold)));
+            blockedIpBusiness.save(new BlockedIp().setIp(ip).setComment(String.format(BLOCK_MESSAGE, thresholdParameter)));
         });
     }
 
     private void validateInputParameters() {
         if (StringUtils.isBlank(startDateParameter)) {
-            throw new InvalidParameterException("startDate parameter is required!");
+            throw new InvalidParameterException("startDate");
         } else if (StringUtils.isBlank(durationParameter)) {
-            throw new InvalidParameterException("duration  parameter is required!");
-        } else if (StringUtils.isBlank(thresholdParameter)) {
-            throw new InvalidParameterException("threshold  parameter is required!");
+            throw new InvalidParameterException("duration");
+        } else if (thresholdParameter == null) {
+            throw new InvalidParameterException("threshold");
         }
     }
 
-    private void readFile() {
+    private void readAndProcessFile() {
         if (StringUtils.isNotBlank(accesslogParameter)) {
             try (Stream<String> stream = Files.lines(Paths.get(accesslogParameter))) {
                 this.process(stream);

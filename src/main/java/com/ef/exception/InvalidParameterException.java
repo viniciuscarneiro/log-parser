@@ -5,7 +5,7 @@ public class InvalidParameterException extends RuntimeException {
         super(e);
     }
 
-    public InvalidParameterException(String errorMessage) {
-        super(errorMessage);
+    public InvalidParameterException(String invalidParam) {
+        super(invalidParam + " parameter is required!");
     }
 }
