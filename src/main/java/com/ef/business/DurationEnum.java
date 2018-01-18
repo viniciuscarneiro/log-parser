@@ -1,38 +1,20 @@
 package com.ef.business;
 
-import com.google.common.collect.ImmutableMap;
-
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Arrays;
-import java.util.Map;
 
-public enum DurationEnum implements Duration {
+public enum DurationEnum {
 
-    DAILY("daily") {
-        @Override
-        public Map<String, LocalDateTime> getDateRange(LocalDateTime date) {
-            return ImmutableMap.<String, LocalDateTime>builder()
-                    .put(START_DATE, date)
-                    .put(END_DATE, date.plusDays(1))
-                    .build();
-        }
-    }, HOURLY("hourly") {
-        @Override
-        public Map<String, LocalDateTime> getDateRange(LocalDateTime date) {
-            return ImmutableMap.<String, LocalDateTime>builder()
-                    .put(START_DATE, date)
-                    .put(END_DATE, date.plusHours(1))
-                    .build();
-        }
-    };
-
-    public static final String START_DATE = "startDate";
-    public static final String END_DATE = "endDate";
+    DAILY("daily", Duration.ofDays(1)),
+    HOURLY("hourly", Duration.ofHours(1));
 
     private final String description;
+    private final Duration duration;
 
-    DurationEnum(String description) {
+    DurationEnum(String description, Duration duration) {
         this.description = description;
+        this.duration = duration;
     }
 
     public static DurationEnum of(String description) {
@@ -40,5 +22,16 @@ public enum DurationEnum implements Duration {
                 .filter(e -> e.description.equals(description))
                 .findFirst()
                 .orElseThrow(() -> new IllegalStateException(String.format("Unsupported type %s.", description)));
+    }
+
+    public Duration getDuration() {
+        return duration;
+    }
+
+    public static void main(String[] args) {
+        LocalDateTime now = LocalDateTime.now();
+        System.out.println(now);
+        System.out.println(now.plus(DurationEnum.HOURLY.getDuration()));
+        System.out.println(now.plus(DurationEnum.DAILY.getDuration()));
     }
 }

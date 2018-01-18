@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -21,10 +20,8 @@ public class AccessLogBusiness {
     }
 
     public Optional<List<String>> executeSearch(DurationEnum duration, LocalDateTime date, Integer threshold) {
-        Map<String, LocalDateTime> dateRange = duration.getDateRange(date);
-        return this.accessLogRepository.findByDateRangeAndCount(dateRange.get(DurationEnum.START_DATE),
-                dateRange.get(DurationEnum.END_DATE),
-                threshold);
+        return this.accessLogRepository.findByDateRangeAndCount(date,
+                date.plus(duration.getDuration()), threshold);
     }
 
     public void truncateAccessLogTable() {
