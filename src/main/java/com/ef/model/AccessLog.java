@@ -26,6 +26,18 @@ public class AccessLog {
     @Column(name = "user_agent")
     private String userAgent;
 
+    public AccessLog(){
+
+    }
+
+    private AccessLog(LocalDateTime date, String ip, String requestMethod, String httpResponseStatus, String userAgent) {
+        this.date = date;
+        this.ip = ip;
+        this.requestMethod = requestMethod;
+        this.httpResponseStatus = httpResponseStatus;
+        this.userAgent = userAgent;
+    }
+
     public Long getId() {
         return id;
     }
@@ -78,5 +90,43 @@ public class AccessLog {
     public AccessLog setUserAgent(String userAgent) {
         this.userAgent = userAgent;
         return this;
+    }
+
+    public static class Builder {
+
+        private LocalDateTime date;
+        private String ip;
+        private String requestMethod;
+        private String httpResponseStatus;
+        private String userAgent;
+
+        public Builder withDate(LocalDateTime date) {
+            this.date = date;
+            return this;
+        }
+
+        public Builder withIp(String ip) {
+            this.ip = ip;
+            return this;
+        }
+
+        public Builder withHttpResponseStatus(String httpResponseStatus) {
+            this.httpResponseStatus = httpResponseStatus;
+            return this;
+        }
+
+        public Builder withRequestMethod(String requestMethod) {
+            this.requestMethod = requestMethod;
+            return this;
+        }
+
+        public Builder withUserAgent(String userAgent) {
+            this.userAgent = userAgent;
+            return this;
+        }
+
+        public AccessLog build() {
+            return new AccessLog(date, ip, requestMethod, httpResponseStatus, userAgent);
+        }
     }
 }

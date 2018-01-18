@@ -1,6 +1,6 @@
 package com.ef.business;
 
-import com.ef.enums.Search;
+import com.ef.model.DurationEnum;
 import com.ef.exception.InvalidFileException;
 import com.ef.exception.InvalidParameterException;
 import com.ef.model.AccessLog;
@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
@@ -31,9 +30,9 @@ public class ParserRunner {
     private static final String SPLIT_DELIMITER = "|";
     private static final String DATE_TIME_LOG_PATTERN = "yyyy-MM-dd HH:mm:ss.SSS";
     private static final String DATE_TIME_PARAMETER_PATTERN = "yyyy-MM-dd.HH:mm:ss";
-    private static final String BLOCK_MESSAGE = "BLOCKED - This IP made more than %s or more requests";
 
     private Logger log = LoggerFactory.getLogger(this.getClass());
+
     @Value("${accesslog:}")
     private String accesslogParameter;
     @Value("${startDate:}")
@@ -48,19 +47,17 @@ public class ParserRunner {
     @Autowired
     private BlockedIpBusiness blockedIpBusiness;
 
-    @Resource(name = "${duration:hourly}")
-    private Search search;
-
     public void run() {
         this.validateInputParameters();
         this.readAndProcessFile();
-        this.parseReturnedIps(this.search.executeSearch(LocalDateTime.parse(startDateParameter, DateTimeFormatter.ofPattern(DATE_TIME_PARAMETER_PATTERN)), thresholdParameter));
+        this.parseReturnedIps(
+                this.accessLogBusiness.executeSearch(DurationEnum.of(durationParameter), LocalDateTime.parse(startDateParameter, DateTimeFormatter.ofPattern(DATE_TIME_PARAMETER_PATTERN)), thresholdParameter));
     }
 
     private void parseReturnedIps(List<String> ipsList) {
         ipsList.forEach(ip -> {
             log.info(ip);
-            blockedIpBusiness.save(new BlockedIp().setIp(ip).setComment(String.format(BLOCK_MESSAGE, thresholdParameter)));
+            blockedIpBusiness.save(new BlockedIp.Builder().withIp(ip).withThreshold(thresholdParameter).build());
         });
     }
 
@@ -89,13 +86,13 @@ public class ParserRunner {
     }
 
     private void process(Stream<String> stream) {
-        this.cleanDatabase();
+        this.wipeDatabase();
         for (String line : stream.collect(Collectors.toList())) {
             this.parseLine(line);
         }
     }
 
-    private void cleanDatabase() {
+    private void wipeDatabase() {
         this.accessLogBusiness.truncateAccessLogTable();
         this.blockedIpBusiness.truncateBlockedIpTable();
     }
@@ -103,12 +100,13 @@ public class ParserRunner {
     private void parseLine(String line) {
         StringTokenizer st = new StringTokenizer(line, SPLIT_DELIMITER);
         while (st.hasMoreTokens()) {
-            this.accessLogBusiness.save(new AccessLog()
-                    .setDate(LocalDateTime.parse(st.nextToken(), DateTimeFormatter.ofPattern(DATE_TIME_LOG_PATTERN)))
-                    .setIp(st.nextToken())
-                    .setRequestMethod(st.nextToken())
-                    .setHttpResponseStatus(st.nextToken())
-                    .setUserAgent(st.nextToken()));
+            this.accessLogBusiness.save(
+                    new AccessLog.Builder()
+                            .withDate(LocalDateTime.parse(st.nextToken(), DateTimeFormatter.ofPattern(DATE_TIME_LOG_PATTERN)))
+                            .withIp(st.nextToken())
+                            .withRequestMethod(st.nextToken())
+                            .withHttpResponseStatus(st.nextToken())
+                            .withUserAgent(st.nextToken()).build());
         }
 
     }

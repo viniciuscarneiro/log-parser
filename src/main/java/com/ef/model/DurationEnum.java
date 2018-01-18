@@ -1,23 +1,29 @@
-package com.ef.enums;
+package com.ef.model;
 
 import com.google.common.collect.ImmutableMap;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.Map;
 
 public enum DurationEnum {
 
-    DAILY("daily", 200), HOURLY("hourly", 500);
+    DAILY("daily"), HOURLY("hourly");
 
     public static final String START_DATE = "startDate";
     public static final String END_DATE = "endDate";
 
     private String description;
-    private Integer maxRequestLimit;
 
-    DurationEnum(String description, Integer maxRequestLimit) {
+    DurationEnum(String description) {
         this.description = description;
-        this.maxRequestLimit = maxRequestLimit;
+    }
+
+    public static DurationEnum of(String description) {
+        return Arrays.stream(DurationEnum.values())
+                .filter(e -> e.description.equals(description))
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException(String.format("Unsupported type %s.", description)));
     }
 
     public Map<String, LocalDateTime> getDateRange(LocalDateTime date) {
@@ -27,7 +33,7 @@ public enum DurationEnum {
             case DAILY:
                 return buildRange(date, date.plusDays(1));
             default:
-                throw new AssertionError("Unknown duration " + this);
+                throw new IllegalStateException(String.format("Unsupported type %s.", this));
         }
     }
 
@@ -37,6 +43,4 @@ public enum DurationEnum {
                 .put(END_DATE, end)
                 .build();
     }
-
-
 }

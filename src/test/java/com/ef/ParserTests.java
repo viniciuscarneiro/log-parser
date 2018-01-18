@@ -1,14 +1,8 @@
 package com.ef;
 
-import com.ef.enums.DurationEnum;
-import com.ef.exception.InvalidFileException;
-import org.junit.Before;
-import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
-
-import java.time.LocalDateTime;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
