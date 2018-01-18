@@ -22,7 +22,7 @@ public class BlockedIpBusiness {
         this.blockedIpRepository.save(blockedIp);
     }
 
-    public void processReturnedIps(Integer threshold, List<String> ipsList) {
+    public void blockIps(Integer threshold, List<String> ipsList) {
         ipsList.forEach(ip -> {
             log.info(String.format(BLOCKED_IP_MESSAGE, ip, threshold));
             this.save(new BlockedIp.Builder().withIp(ip).withThreshold(threshold).build());

@@ -22,8 +22,6 @@ public class SearchBusiness {
     private Integer threshold;
 
     @Autowired
-    private ApplicationBusiness applicationBusiness;
-    @Autowired
     private AccessLogBusiness accessLogBusiness;
     @Autowired
     private BlockedIpBusiness blockedIpBusiness;
@@ -31,10 +29,10 @@ public class SearchBusiness {
     public void executeAndProcessSearch() {
         this.accessLogBusiness
                 .executeSearch(DurationEnum.of(duration), LocalDateTime.parse(startDate, DateTimeFormatter.ofPattern(DATE_TIME_PARAMETER_PATTERN)), threshold)
-                .ifPresent(result -> processSearchResult(threshold, result));
+                .ifPresent(this::processSearchResult);
     }
 
-    private void processSearchResult(Integer threshold, List<String> ipsList) {
-        this.blockedIpBusiness.processReturnedIps(threshold, ipsList);
+    private void processSearchResult(List<String> ipsList) {
+        this.blockedIpBusiness.blockIps(threshold, ipsList);
     }
 }
