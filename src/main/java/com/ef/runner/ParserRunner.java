@@ -30,7 +30,7 @@ public class ParserRunner {
 
     public void run() {
         this.validateInputParameters();
-        this.fileBusiness.readAndProcessFile(accessLogParameter, durationParameter, startDateParameter, thresholdParameter);
+        this.fileBusiness.readAndProcessFile(accessLogParameter);
         this.searchBusiness.executeAndProcessSearch(durationParameter, startDateParameter, thresholdParameter);
     }
 
