@@ -1,6 +1,6 @@
 package com.ef;
 
-import com.ef.business.ParserRunner;
+import com.ef.runner.ParserRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
