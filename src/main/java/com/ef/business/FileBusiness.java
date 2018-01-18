@@ -6,6 +6,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -34,8 +35,11 @@ public class FileBusiness {
     @Autowired
     private BlockedIpBusiness blockedIpBusiness;
 
+    @Value("${accesslog:}")
+    private String accessLog;
 
-    public void readAndProcessFile(String accessLog) {
+
+    public void readAndProcessFile() {
         if (StringUtils.isNotBlank(accessLog)) {
             try (Stream<String> stream = Files.lines(Paths.get(accessLog))) {
                 this.process(stream);

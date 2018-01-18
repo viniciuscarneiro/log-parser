@@ -2,6 +2,7 @@ package com.ef.business;
 
 import com.ef.model.DurationEnum;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -13,6 +14,13 @@ public class SearchBusiness {
 
     private static final String DATE_TIME_PARAMETER_PATTERN = "yyyy-MM-dd.HH:mm:ss";
 
+    @Value("${startDate:}")
+    private String startDate;
+    @Value("${duration:}")
+    private String duration;
+    @Value("${threshold:}")
+    private Integer threshold;
+
     @Autowired
     private ApplicationBusiness applicationBusiness;
     @Autowired
@@ -20,7 +28,7 @@ public class SearchBusiness {
     @Autowired
     private BlockedIpBusiness blockedIpBusiness;
 
-    public void executeAndProcessSearch(String duration, String startDate, Integer threshold) {
+    public void executeAndProcessSearch() {
         this.accessLogBusiness
                 .executeSearch(DurationEnum.of(duration), LocalDateTime.parse(startDate, DateTimeFormatter.ofPattern(DATE_TIME_PARAMETER_PATTERN)), threshold)
                 .ifPresent(result -> processSearchResult(threshold, result));
